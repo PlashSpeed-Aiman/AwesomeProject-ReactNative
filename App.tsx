@@ -9,27 +9,19 @@ import 'react-native-gesture-handler';
 
 import React from 'react';
 import type {PropsWithChildren} from 'react';
-import {
-  Button,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
-
+import {createRealmContext} from '@realm/react';
+import {realmConfig} from './dev/database/database';
 import {NavigationContainer} from '@react-navigation/native';
-import {createStackNavigator} from '@react-navigation/stack';
 import {createDrawerNavigator} from '@react-navigation/drawer';
+import {Provider as PaperProvider} from 'react-native-paper';
 import HomeScreen from './dev/components/Home/HomeScreen.jsx';
 import DetailsScreen from './dev/components/DetailScreen.jsx';
 // const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
+const {RealmProvider} = createRealmContext(realmConfig);
 function MyStack() {
   return (
-    <Drawer.Navigator useLegacyImplementation initialRouteName="Home">
+    <Drawer.Navigator initialRouteName="Home">
       <Drawer.Screen name="Home" component={HomeScreen} />
       <Drawer.Screen name="Notifications" component={DetailsScreen} />
     </Drawer.Navigator>
@@ -39,7 +31,11 @@ function MyStack() {
 function App() {
   return (
     <NavigationContainer>
-      <MyStack />
+      <RealmProvider>
+        <PaperProvider>
+          <MyStack />
+        </PaperProvider>
+      </RealmProvider>
     </NavigationContainer>
   );
 }

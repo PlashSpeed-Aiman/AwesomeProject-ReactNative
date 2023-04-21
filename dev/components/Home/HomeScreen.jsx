@@ -1,37 +1,59 @@
 import React, {useCallback} from 'react';
-import {View, Text, StyleSheet, Linking} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {Card, Button, TextInput,ToastAndroid} from 'react-native-paper';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Linking,
+  Platform,
+  ToastAndroid,
+} from 'react-native';
+import {Card, Button, TextInput, Divider} from 'react-native-paper';
 export default function HomeScreen() {
-  const Message = useCallback(async (number) => {
-    if(number.length < 10) {
-      await ToastAndroid.show('A pikachu appeared nearby !', ToastAndroid.SHORT);
+  
+  const [whatsappLink, setWhatsappLink] = useState('');
+  useEffect(setWhatsappLink(whatsappLink),[whatsappLink]);
+  const Message = useCallback(async number => {
+    if (number.length < 10) {
+      if (Platform.OS === 'android')
+        ToastAndroid.show('Entry has less than 10 numbers', ToastAndroid.SHORT);
       return;
-    };
-    await Linking.openURL(`whatsapp://send?text=Hello&phone=+60${number}}`).catch((err) => console.log(err));
-  });
-  const WhatsappLinkCard = useCallback(() => (
+    }
+    await Linking.openURL(
+      `whatsapp://send?text=Hello&phone=+60${number}}`,
+    ).catch(err => console.log(err));
+  },[]);
+  const WhatsappLinkCard = useCallback(() => {
+    let aRegex = /^\d{10}$/;
+    const API_LINK = 'https://wa.me/';
     <Card mode="outlined" style={{marginTop: 10}}>
       <Card.Content>
-        <Text>WhatsApp Number</Text>
+        <Text>{API_LINK + whatsappLink}</Text>
       </Card.Content>
     </Card>
-  ));
+    
+  },[whatsappLink]);
+  const Toast = () => {
+    ToastAndroid.show('A pikachu appeared nearby !', ToastAndroid.SHORT);
+  };
 
-  let phoneNumber = '';
-  let whatsappLink = '';
+
+
+ 
 
   return (
     <View style={style.container}>
       <Card style={style.card}>
         <Card.Content>
           <Text>WhatsApp Number</Text>
-          <TextInput keyboardType="phone-pad"
+          <TextInput
+            keyboardType="phone-pad"
             onChangeText={data => {
               phoneNumber = data.toString();
             }}
-            onSubmitEditing={()=>{return false}}></TextInput>
-          <WhatsappLinkCard/>
+            onSubmitEditing={() => {
+              return false;
+            }}></TextInput>
+          <WhatsappLinkCard />
         </Card.Content>
         <Card.Actions style={{marginEnd: 10}}>
           <Button
@@ -40,7 +62,12 @@ export default function HomeScreen() {
             }}>
             Message
           </Button>
-          <Button onPress={() => {}}>Save</Button>
+          <Button
+            onPress={() => {
+              Toast();
+            }}>
+            Save
+          </Button>
         </Card.Actions>
       </Card>
     </View>
