@@ -18,17 +18,18 @@ import HomeScreen from './dev/components/Home/HomeScreen.jsx';
 import DetailsScreen from './dev/components/DetailScreen.jsx';
 // const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
-const {RealmProvider} = createRealmContext(realmConfig);
 function MyStack() {
   return (
     <Drawer.Navigator initialRouteName="Home">
       <Drawer.Screen name="Home" component={HomeScreen} />
-      <Drawer.Screen name="Notifications" component={DetailsScreen} />
+      <Drawer.Screen name="Log Book" component={DetailsScreen} />
     </Drawer.Navigator>
   );
 }
 
 function App() {
+  const {RealmProvider} = realmConfig;
+
   return (
     <NavigationContainer>
       <RealmProvider>

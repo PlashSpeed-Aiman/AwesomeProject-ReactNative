@@ -12,7 +12,7 @@ export class Contact extends Realm.Object<Contact> {
     properties: {
       _id: 'objectId',
       name: 'string',
-      telephoneNumber: 'int',
+      telephoneNumber: 'string',
       description: 'string',
       collectionName: 'string',
     },

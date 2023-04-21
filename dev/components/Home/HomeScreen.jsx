@@ -1,73 +1,109 @@
-import React, {useCallback} from 'react';
+import {createRealmContext} from '@realm/react';
+import React, {useState, useMemo, useCallback, useEffect} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Linking,
   Platform,
+  Keyboard,
   ToastAndroid,
+  ScrollView,
 } from 'react-native';
-import {Card, Button, TextInput, Divider} from 'react-native-paper';
-export default function HomeScreen() {
-  
-  const [whatsappLink, setWhatsappLink] = useState('');
-  useEffect(setWhatsappLink(whatsappLink),[whatsappLink]);
-  const Message = useCallback(async number => {
-    if (number.length < 10) {
-      if (Platform.OS === 'android')
-        ToastAndroid.show('Entry has less than 10 numbers', ToastAndroid.SHORT);
-      return;
+import Clipboard from '@react-native-clipboard/clipboard';
+import {Card, Button, TextInput, List} from 'react-native-paper';
+import {realmConfig} from '../../database/database';
+const nonDigitRegExp = /[^0-9]+/g;
+const {useRealm} = realmConfig;
+const WhatsappLinkCard = ({link}) => {
+  const copyToClipboard = useCallback(() => {
+    Clipboard.setString(API_LINK + link);
+    if (Platform.OS === 'android') {
+      ToastAndroid.show('Copied to clipboard', ToastAndroid.SHORT);
     }
-    await Linking.openURL(
-      `whatsapp://send?text=Hello&phone=+60${number}}`,
-    ).catch(err => console.log(err));
-  },[]);
-  const WhatsappLinkCard = useCallback(() => {
-    let aRegex = /^\d{10}$/;
-    const API_LINK = 'https://wa.me/';
-    <Card mode="outlined" style={{marginTop: 10}}>
+  }, [link]);
+
+  const API_LINK = 'https://wa.me/';
+  return (
+    <Card
+      onLongPress={() => copyToClipboard()}
+      mode="outlined"
+      style={{marginTop: 10}}>
       <Card.Content>
-        <Text>{API_LINK + whatsappLink}</Text>
+        <Text>Long Press to Copy Link</Text>
+
+        <Text>{API_LINK + link}</Text>
       </Card.Content>
     </Card>
-    
+  );
+};
+export default function HomeScreen() {
+  const realm = useRealm();
+  const [description, setDescription] = useState(() => '');
+  const [whatsappLink, setWhatsappLink] = useState(() => '');
+  const createContact = useCallback((num, desc) => {
+    if(num <10){
+      if (Platform.OS === 'android') {
+        ToastAndroid.show('Entry has less than 10 numbers', ToastAndroid.SHORT);
+      }
+      return;
+    }
+    realm.write(() => {
+      realm.create('Contact', {
+        _id: new Realm.BSON.ObjectId(),
+        name: '',
+        telephoneNumber: num,
+        description: desc ? desc : '',
+        collectionName: 'none',
+      });
+    });
   },[whatsappLink]);
-  const Toast = () => {
-    ToastAndroid.show('A pikachu appeared nearby !', ToastAndroid.SHORT);
-  };
-
-
-
- 
+  const Message = useCallback(async () => {
+    if (whatsappLink.length < 10) {
+      if (Platform.OS === 'android') {
+        ToastAndroid.show('Entry has less than 10 numbers', ToastAndroid.SHORT);
+      }
+      return;
+    }
+    await Linking.openURL(`whatsapp://send?text=Hello&phone=+${whatsappLink}`);
+  }, [whatsappLink]);
 
   return (
     <View style={style.container}>
       <Card style={style.card}>
         <Card.Content>
-          <Text>WhatsApp Number</Text>
           <TextInput
+            label="WhatsApp Number"
             keyboardType="phone-pad"
-            onChangeText={data => {
-              phoneNumber = data.toString();
-            }}
-            onSubmitEditing={() => {
-              return false;
-            }}></TextInput>
-          <WhatsappLinkCard />
+            //this is bad, but i'll fix it later. Too many new each time a text changes
+            onChangeText={data =>
+              setWhatsappLink(data.replaceAll(nonDigitRegExp, ''))
+            }
+            onSubmitEditing={() => Keyboard.dismiss()}
+          />
+
+          <List.Accordion
+            style={{padding: 1}}
+            titleStyle={{fontSize: 10}}
+            title="Extra Options">
+            <TextInput
+              placeholder="Description"
+              mode="outlined"
+              onChangeText={setDescription}
+            />
+            <TextInput placeholder="Collection Name" mode="outlined" />
+          </List.Accordion>
+          <WhatsappLinkCard link={whatsappLink} />
         </Card.Content>
         <Card.Actions style={{marginEnd: 10}}>
           <Button
+            icon={'plus'}
             onPress={() => {
-              Message(phoneNumber);
+              createContact(whatsappLink, description);
             }}>
-            Message
+            Add
           </Button>
-          <Button
-            onPress={() => {
-              Toast();
-            }}>
-            Save
-          </Button>
+          <Button onPress={Message}>Message</Button>
         </Card.Actions>
       </Card>
     </View>
@@ -83,10 +119,5 @@ const style = StyleSheet.create({
   card: {
     padding: 15,
     width: '90%',
-  },
-  cardButtons: {
-    flex: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
