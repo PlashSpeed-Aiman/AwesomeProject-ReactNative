@@ -1,38 +1,49 @@
-import React, {useMemo} from 'react';
-import {View, StyleSheet, Linking, ToastAndroid} from 'react-native';
-import {Text, Button, List, IconButton, Card} from 'react-native-paper';
-import {red100} from 'react-native-paper/lib/typescript/src/styles/themes/v2/colors';
-import {realmConfig} from '../database/database';
+import React, { useMemo } from 'react';
+import { View, StyleSheet, Linking, ToastAndroid } from 'react-native';
+import { Text, Button, List, IconButton, Card } from 'react-native-paper';
+import { red100 } from 'react-native-paper/lib/typescript/src/styles/themes/v2/colors';
+import { realmConfig } from '../database/database';
 
-const {useRealm, useQuery} = realmConfig;
+const { useRealm, useQuery } = realmConfig;
 
-const ContactsView = ({contacts, deleteContact}) => {
+const ContactsView = ({ contacts, deleteContact }) => {
+
+
+  const DeleteButton = ({ contact }) => (
+    <IconButton
+      mode="contained"
+      containerColor="#663399"
+      iconColor="white"
+      icon={'delete'}
+      style={{
+        marginRight: 5,
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}
+      title="Delete"
+      onPress={() => deleteContact(contact._id)}></IconButton>
+  )
+
   return contacts.map((contact, index) => (
     <List.Item
       key={index}
       title={contact.telephoneNumber}
+      titleStyle={{fontSize:20}}
       description={`${contact.description}\n${contact.collectionName}`}
       onPress={async () => {
         await Linking.openURL(
           `whatsapp://send?text=Hello&phone=+${contact.telephoneNumber}`,
-        );
+        ).catch((exception) => {
+          ToastAndroid.show("ERROR: WhatsApp not detected on device", ToastAndroid.SHORT)
+        });
       }}
-      right={() => {
-        return (
-          <IconButton
-            mode="contained"
-            containerColor="#663399"
-            iconColor="white"
-            icon={'delete'}
-            style={{
-              marginRight: 5,
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-            title="Delete"
-            onPress={() => deleteContact(contact._id)}></IconButton>
-        );
-      }}
+      right={() =>
+        <>
+          <IconButton icon="square-edit-outline" onPress={(e)=>{console.log("TEST")}}/>
+          <DeleteButton contact={contact} />
+
+        </>
+      }
     />
   ));
 };
@@ -47,6 +58,12 @@ export default function DetailsScreen() {
     ToastAndroid.show('Contact deleted', ToastAndroid.SHORT);
   };
   const contacts = useQuery('Contact');
+
+  const randomFun = () => {
+    realm.write(() => {
+      realm.update
+    })
+  }
 
   return (
     <View>

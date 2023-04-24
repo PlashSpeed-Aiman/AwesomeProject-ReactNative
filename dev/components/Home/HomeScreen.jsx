@@ -1,5 +1,5 @@
-import {createRealmContext} from '@realm/react';
-import React, {useState, useMemo, useCallback, useEffect} from 'react';
+import { createRealmContext } from '@realm/react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,11 +11,14 @@ import {
   ScrollView,
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import {Card, Button, TextInput, List} from 'react-native-paper';
-import {realmConfig} from '../../database/database';
+import { Card, Button, TextInput, List } from 'react-native-paper';
+import { realmConfig } from '../../database/database';
+import CountryCodeComponent from './CountryCodeComponent';
 const nonDigitRegExp = /[^0-9]+/g;
-const {useRealm} = realmConfig;
-const WhatsappLinkCard = ({link}) => {
+const { useRealm } = realmConfig;
+
+
+const WhatsappLinkCard = ({ link, countryCodeVal }) => {
   const copyToClipboard = useCallback(() => {
     Clipboard.setString(API_LINK + link);
     if (Platform.OS === 'android') {
@@ -28,11 +31,11 @@ const WhatsappLinkCard = ({link}) => {
     <Card
       onLongPress={() => copyToClipboard()}
       mode="outlined"
-      style={{marginTop: 10}}>
+      style={{ marginTop: 10 }}>
       <Card.Content>
         <Text>Long Press to Copy Link</Text>
 
-        <Text>{API_LINK + link}</Text>
+        <Text>{API_LINK + countryCodeVal + link}</Text>
       </Card.Content>
     </Card>
   );
@@ -41,8 +44,9 @@ export default function HomeScreen() {
   const realm = useRealm();
   const [description, setDescription] = useState(() => '');
   const [whatsappLink, setWhatsappLink] = useState(() => '');
-  const createContact = useCallback((num, desc) => {
-    if(num <10){
+  const [countryCode, setCountryCode] = useState(() => '');
+  const createContact = useCallback((num, desc,collectionName) => {
+    if (num < 10) {
       if (Platform.OS === 'android') {
         ToastAndroid.show('Entry has less than 10 numbers', ToastAndroid.SHORT);
       }
@@ -53,11 +57,14 @@ export default function HomeScreen() {
         _id: new Realm.BSON.ObjectId(),
         name: '',
         telephoneNumber: num,
-        description: desc ? desc : '',
-        collectionName: 'none',
+        description: desc ? desc : 'No Description',
+        collectionName: collectionName ? collectionName : 'None',
       });
     });
-  },[whatsappLink]);
+    if (Platform.OS === 'android') {
+      ToastAndroid.show('Contact added to Collections', ToastAndroid.SHORT);
+    }
+  }, [whatsappLink]);
   const Message = useCallback(async () => {
     if (whatsappLink.length < 10) {
       if (Platform.OS === 'android') {
@@ -65,13 +72,14 @@ export default function HomeScreen() {
       }
       return;
     }
-    await Linking.openURL(`whatsapp://send?text=Hello&phone=+${whatsappLink}`);
+    await Linking.openURL(`whatsapp://send?text=Hello&phone=+${countryCode}${whatsappLink}`);
   }, [whatsappLink]);
 
   return (
     <View style={style.container}>
       <Card style={style.card}>
         <Card.Content>
+          <CountryCodeComponent countryCodeVal={countryCode} countryCodeSetter={setCountryCode} />
           <TextInput
             label="WhatsApp Number"
             keyboardType="phone-pad"
@@ -83,8 +91,8 @@ export default function HomeScreen() {
           />
 
           <List.Accordion
-            style={{padding: 1}}
-            titleStyle={{fontSize: 10}}
+            style={{ padding: 1 }}
+            titleStyle={{ fontSize: 10 }}
             title="Extra Options">
             <TextInput
               placeholder="Description"
@@ -93,13 +101,13 @@ export default function HomeScreen() {
             />
             <TextInput placeholder="Collection Name" mode="outlined" />
           </List.Accordion>
-          <WhatsappLinkCard link={whatsappLink} />
+          <WhatsappLinkCard link={whatsappLink} countryCodeVal={countryCode} />
         </Card.Content>
-        <Card.Actions style={{marginEnd: 10}}>
+        <Card.Actions style={{ marginEnd: 10 }}>
           <Button
             icon={'plus'}
             onPress={() => {
-              createContact(whatsappLink, description);
+              createContact(countryCode+whatsappLink, description);
             }}>
             Add
           </Button>
