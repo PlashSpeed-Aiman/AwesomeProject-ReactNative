@@ -64,10 +64,10 @@ export default function DetailsScreen() {
       realm.update
     })
   }
-
+  console.log('operation re-render')
   return (
     <View>
-      <List.Accordion title="All" id="1" expanded="true">
+      <List.Accordion title="All" id="1" >
         <ContactsView contacts={contacts} deleteContact={deleteContact} />
       </List.Accordion>
       {/* <View>

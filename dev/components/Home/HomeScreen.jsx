@@ -13,12 +13,12 @@ import {
 import Clipboard from '@react-native-clipboard/clipboard';
 import { Card, Button, TextInput, List } from 'react-native-paper';
 import { realmConfig } from '../../database/database';
-import CountryCodeComponent from './CountryCodeComponent';
+import {CountryCodeComponent} from './CountryCodeComponent';
 const nonDigitRegExp = /[^0-9]+/g;
 const { useRealm } = realmConfig;
 
 
-const WhatsappLinkCard = ({ link, countryCodeVal }) => {
+const WhatsappLinkCard = React.memo(({ link, countryCodeVal }) => {
   const copyToClipboard = useCallback(() => {
     Clipboard.setString(API_LINK + link);
     if (Platform.OS === 'android') {
@@ -39,13 +39,13 @@ const WhatsappLinkCard = ({ link, countryCodeVal }) => {
       </Card.Content>
     </Card>
   );
-};
+});
 export default function HomeScreen() {
   const realm = useRealm();
   const [description, setDescription] = useState(() => '');
   const [whatsappLink, setWhatsappLink] = useState(() => '');
   const [countryCode, setCountryCode] = useState(() => '');
-  const createContact = useCallback((num, desc,collectionName) => {
+  const createContact = useCallback((num, desc, collectionName) => {
     if (num < 10) {
       if (Platform.OS === 'android') {
         ToastAndroid.show('Entry has less than 10 numbers', ToastAndroid.SHORT);
@@ -74,9 +74,10 @@ export default function HomeScreen() {
     }
     await Linking.openURL(`whatsapp://send?text=Hello&phone=+${countryCode}${whatsappLink}`);
   }, [whatsappLink]);
-
+  console.log("TEST")
   return (
     <View style={style.container}>
+      <Text>WhatsApp Collections Management App</Text>
       <Card style={style.card}>
         <Card.Content>
           <CountryCodeComponent countryCodeVal={countryCode} countryCodeSetter={setCountryCode} />
@@ -107,7 +108,7 @@ export default function HomeScreen() {
           <Button
             icon={'plus'}
             onPress={() => {
-              createContact(countryCode+whatsappLink, description);
+              createContact(countryCode + whatsappLink, description);
             }}>
             Add
           </Button>
@@ -129,3 +130,5 @@ const style = StyleSheet.create({
     width: '90%',
   },
 });
+
+export const MemoizedHome = React.memo(HomeScreen)

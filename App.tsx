@@ -9,20 +9,30 @@ import 'react-native-gesture-handler';
 
 import React from 'react';
 import type {PropsWithChildren} from 'react';
-import {createRealmContext} from '@realm/react';
 import {realmConfig} from './dev/database/database';
 import {NavigationContainer} from '@react-navigation/native';
 import {createDrawerNavigator} from '@react-navigation/drawer';
-import {Provider as PaperProvider} from 'react-native-paper';
-import HomeScreen from './dev/components/Home/HomeScreen.jsx';
+import {Provider as PaperProvider, MD3Colors} from 'react-native-paper';
 import DetailsScreen from './dev/components/DetailScreen.jsx';
+import {MemoizedHome} from './dev/components/Home/HomeScreen';
+import SettingsScreen from './dev/components/SettingsScreen';
 // const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 function MyStack() {
   return (
-    <Drawer.Navigator initialRouteName="Home">
-      <Drawer.Screen name="Home" component={HomeScreen} />
+    <Drawer.Navigator
+      screenOptions={{
+        headerTintColor: 'white',
+        headerStyle: {
+          backgroundColor: MD3Colors.primary50,
+        },
+        drawerActiveBackgroundColor: MD3Colors.secondary60,
+        drawerActiveTintColor: 'white',
+      }}
+      initialRouteName="Home">
+      <Drawer.Screen name="Home" component={MemoizedHome} />
       <Drawer.Screen name="Log Book" component={DetailsScreen} />
+      <Drawer.Screen name="Settings" component={SettingsScreen} />
     </Drawer.Navigator>
   );
 }
