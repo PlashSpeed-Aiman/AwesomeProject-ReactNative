@@ -13,12 +13,13 @@ import {realmConfig} from './dev/database/database';
 import {NavigationContainer} from '@react-navigation/native';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import {Provider as PaperProvider, MD3Colors} from 'react-native-paper';
-import DetailsScreen from './dev/components/DetailScreen.jsx';
 import {MemoizedHome} from './dev/components/Home/HomeScreen';
 import SettingsScreen from './dev/components/SettingsScreen';
+import {DetailsStackNavigator} from './dev/components/navigation/DetailsStackNavigation';
 // const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 function MyStack() {
+  console.log('DrawerOpen');
   return (
     <Drawer.Navigator
       screenOptions={{
@@ -28,10 +29,11 @@ function MyStack() {
         },
         drawerActiveBackgroundColor: MD3Colors.secondary60,
         drawerActiveTintColor: 'white',
+        unmountOnBlur: true,
       }}
       initialRouteName="Home">
       <Drawer.Screen name="Home" component={MemoizedHome} />
-      <Drawer.Screen name="Log Book" component={DetailsScreen} />
+      <Drawer.Screen name="Collections" component={DetailsStackNavigator} />
       <Drawer.Screen name="Settings" component={SettingsScreen} />
     </Drawer.Navigator>
   );
