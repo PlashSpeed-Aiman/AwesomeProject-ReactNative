@@ -97,7 +97,7 @@ const phoneCode = [
 export const CountryCodeComponent = React.memo(({ countryCodeVal, countryCodeSetter }) => {
     const [showDropDown, setShowDropDown] = useState(false);
     
-    console.log(phoneCode)
+    // console.log(phoneCode)
     return (
         <DropDown
             list={phoneCode}

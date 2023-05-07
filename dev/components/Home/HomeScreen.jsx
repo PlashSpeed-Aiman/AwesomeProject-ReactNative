@@ -11,9 +11,9 @@ import {
   ScrollView,
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Card, Button, TextInput, List } from 'react-native-paper';
+import { Card, Button, TextInput, List, TouchableRipple } from 'react-native-paper';
 import { realmConfig } from '../../database/database';
-import {CountryCodeComponent} from './CountryCodeComponent';
+import { CountryCodeComponent } from './CountryCodeComponent';
 const nonDigitRegExp = /[^0-9]+/g;
 const { useRealm } = realmConfig;
 
@@ -30,12 +30,18 @@ const WhatsappLinkCard = React.memo(({ link, countryCodeVal }) => {
   return (
     <Card
       onLongPress={() => copyToClipboard()}
-      mode="outlined"
-      style={{ marginTop: 10 }}>
+      style={{ marginTop: 10 }}
+      c
+    >
       <Card.Content>
-        <Text>Long Press to Copy Link</Text>
 
-        <Text>{API_LINK + countryCodeVal + link}</Text>
+        <View>
+          <Text>Long Press to Copy Link</Text>
+
+          <Text>{API_LINK + countryCodeVal + link}</Text>
+        </View>
+
+
       </Card.Content>
     </Card>
   );
@@ -66,7 +72,7 @@ export default function HomeScreen() {
     }
   }, [whatsappLink]);
   const Message = useCallback(async () => {
-    if (whatsappLink.length < 10) {
+    if ((countryCode+whatsappLink).length < 10) {
       if (Platform.OS === 'android') {
         ToastAndroid.show('Entry has less than 10 numbers', ToastAndroid.SHORT);
       }
@@ -79,14 +85,15 @@ export default function HomeScreen() {
     <View style={style.container}>
       <Text>WhatsApp Collections Management App</Text>
       <Card style={style.card}>
+        
         <Card.Content>
           <CountryCodeComponent countryCodeVal={countryCode} countryCodeSetter={setCountryCode} />
           <TextInput
             label="WhatsApp Number"
             keyboardType="phone-pad"
             //this is bad, but i'll fix it later. Too many new each time a text changes
-            onChangeText={data =>
-              setWhatsappLink(data.replaceAll(nonDigitRegExp, ''))
+            onChangeText={async (data) =>
+               setWhatsappLink(data.replaceAll(nonDigitRegExp, ''))
             }
             onSubmitEditing={() => Keyboard.dismiss()}
           />
@@ -112,7 +119,7 @@ export default function HomeScreen() {
             }}>
             Add
           </Button>
-          <Button onPress={Message}>Message</Button>
+          <Button onPress={(e) => Message()}>Message</Button>
         </Card.Actions>
       </Card>
     </View>
