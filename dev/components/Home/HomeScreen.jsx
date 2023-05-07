@@ -52,7 +52,7 @@ export default function HomeScreen() {
   const [whatsappLink, setWhatsappLink] = useState(() => '');
   const [countryCode, setCountryCode] = useState(() => '');
   const createContact = useCallback((num, desc, collectionName) => {
-    if (num < 10) {
+    if (num.length < 10) {
       if (Platform.OS === 'android') {
         ToastAndroid.show('Entry has less than 10 numbers', ToastAndroid.SHORT);
       }
@@ -72,20 +72,22 @@ export default function HomeScreen() {
     }
   }, [whatsappLink]);
   const Message = useCallback(async () => {
-    if ((countryCode+whatsappLink).length < 10) {
+    if ((countryCode.length+whatsappLink.length) < 10) {
       if (Platform.OS === 'android') {
         ToastAndroid.show('Entry has less than 10 numbers', ToastAndroid.SHORT);
       }
       return;
     }
-    await Linking.openURL(`whatsapp://send?text=Hello&phone=+${countryCode}${whatsappLink}`);
+    await Linking.openURL(`whatsapp://send?text=Hello&phone=+${countryCode}${whatsappLink}`).catch((e)=>ToastAndroid.show('Error!',ToastAndroid.SHORT));
   }, [whatsappLink]);
   console.log("TEST")
   return (
     <View style={style.container}>
-      <Text>WhatsApp Collections Management App</Text>
       <Card style={style.card}>
-        
+        <Card.Title title="WhatsApp Collections Management App">
+        <Text></Text>
+
+        </Card.Title>
         <Card.Content>
           <CountryCodeComponent countryCodeVal={countryCode} countryCodeSetter={setCountryCode} />
           <TextInput

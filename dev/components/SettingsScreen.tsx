@@ -5,7 +5,7 @@ import {Text, Button, List, IconButton, Card} from 'react-native-paper';
 export default function SettingsScreen() {
   return (
     <View style={style.container}>
-      <Text>This is a Details Page</Text>
+      <Text>Setting Page</Text>
     </View>
   );
 }

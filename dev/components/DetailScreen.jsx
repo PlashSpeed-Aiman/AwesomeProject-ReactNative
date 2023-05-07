@@ -1,12 +1,16 @@
-import React, {useMemo} from 'react';
-import {View, StyleSheet, Linking, ToastAndroid} from 'react-native';
-import {Text, Button, List, IconButton, Card} from 'react-native-paper';
-import {realmConfig} from '../database/database';
+import React, { useMemo } from 'react';
+import { View, StyleSheet, Linking, ToastAndroid } from 'react-native';
+import { Text, Button, List, IconButton, Card, Tooltip } from 'react-native-paper';
+import { red100 } from 'react-native-paper/lib/typescript/src/styles/themes/v2/colors';
+import { realmConfig } from '../database/database';
+import { DetailsStackNavigator } from './navigation/DetailsStackNavigation.jsx';
 
 const {useRealm, useQuery} = realmConfig;
 
-const ContactsView = ({contacts, deleteContact}) => {
-  const DeleteButton = ({contact}) => (
+const ContactsView = ({ navigation, contacts, deleteContact }) => {
+
+
+  const DeleteButton = ({ contact }) => (
     <IconButton
       mode="contained"
       containerColor="#663399"
@@ -25,7 +29,7 @@ const ContactsView = ({contacts, deleteContact}) => {
     <List.Item
       key={index}
       title={contact.telephoneNumber}
-      titleStyle={{fontSize: 20}}
+      titleStyle={{ fontSize: 20 }}
       description={`${contact.description}\n${contact.collectionName}`}
       onPress={async () => {
         await Linking.openURL(
@@ -39,12 +43,9 @@ const ContactsView = ({contacts, deleteContact}) => {
       }}
       right={() => (
         <>
-          <IconButton
-            icon="square-edit-outline"
-            onPress={e => {
-              console.log('TEST');
-            }}
-          />
+          <Tooltip title='Edit'>
+            <IconButton  icon="square-edit-outline" onPress={(e) => { navigation.navigate('About',{contact}) }} />
+          </Tooltip>
           <DeleteButton contact={contact} />
         </>
       )}
@@ -52,7 +53,8 @@ const ContactsView = ({contacts, deleteContact}) => {
   ));
 };
 
-export default function DetailsScreen() {
+export default function DetailsScreen({ navigation }) {
+
   const realm = useRealm();
   const deleteContact = id => {
     realm.write(() => {
@@ -62,11 +64,12 @@ export default function DetailsScreen() {
     ToastAndroid.show('Contact deleted', ToastAndroid.SHORT);
   };
   const contacts = useQuery('Contact');
-  console.log('operation re-render');
+
+  console.log('operation re-render')
   return (
     <View>
-      <List.Accordion title="All" id="1">
-        <ContactsView contacts={contacts} deleteContact={deleteContact} />
+      <List.Accordion title="All" id="1" >
+        <ContactsView navigation={navigation} contacts={contacts} deleteContact={deleteContact} />
       </List.Accordion>
       {/* <View>
           <Text>
